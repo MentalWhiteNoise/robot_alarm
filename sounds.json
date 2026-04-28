@@ -1,0 +1,731 @@
+{
+    "and_justice_for_all": {
+        "title": "...And Justice For All",
+        "file": "/sd/songs/and_justice_for_all.wav",
+        "artist": "Metallica",
+        "duration": 586.527347,
+        "type": "songs"
+    },
+    "500_miles": {
+        "title": "500 Miles",
+        "file": "/sd/songs/500_miles.wav",
+        "artist": "The Proclaimers",
+        "duration": 216.372245,
+        "type": "songs"
+    },
+    "8_lessons_for_the_guitar": {
+        "title": "8 Lessons for the Guitar - No. 2 in A minor",
+        "file": "/sd/guitar/8_lessons_for_the_guitar.wav",
+        "artist": "Dionisio Aguado",
+        "duration": 45.662041,
+        "type": "guitar"
+    },
+    "99_red_balloons": {
+        "title": "99 Red Balloons",
+        "file": "/sd/songs/99_red_balloons.wav",
+        "artist": "Nena",
+        "duration": 234.501224,
+        "type": "songs"
+    },
+    "american_quartet": {
+        "title": "American Quartet (String Quartet No. 12 in F Major, Op. 96)",
+        "file": "/sd/orchestral/american_quartet.wav",
+        "artist": "Antonín Dvořák",
+        "duration": 475.641315,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "american_quartet_short": {
+        "title": "American Quartet (String Quartet No. 12 in F Major, Op. 96)",
+        "file": "/sd/orchestral/american_quartet_short.wav",
+        "artist": "Antonín Dvořák",
+        "duration": 37.466168,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "angel_of_the_morning": {
+        "title": "Angel of the Morning",
+        "file": "/sd/songs/angel_of_the_morning.wav",
+        "artist": "Pretenders",
+        "duration": 315.872653,
+        "type": "songs"
+    },
+    "ave_maria": {
+        "title": "Ave Maria",
+        "file": "/sd/piano/ave_maria.wav",
+        "artist": "Johann Sebastian Bach",
+        "duration": 192.064853,
+        "type": "piano"
+    },
+    "bella_ciao": {
+        "title": "Bella Ciao",
+        "file": "/sd/songs/bella_ciao.wav",
+        "artist": "La Casa de Papei",
+        "duration": 63.582041,
+        "type": "songs"
+    },
+    "birds": {
+        "title": "Birds",
+        "file": "/sd/sounds/birds.wav",
+        "artist": "Recordings",
+        "duration": 209.410612,
+        "type": "sounds"
+    },
+    "birds_ambiance": {
+        "title": "Birds Ambiance",
+        "file": "/sd/sounds/birds_ambiance.wav",
+        "artist": "Recordings",
+        "duration": 98.037551,
+        "type": "sounds"
+    },
+    "calming_rain": {
+        "title": "Calming Rain",
+        "file": "/sd/sounds/calming_rain.wav",
+        "artist": "Recordings",
+        "duration": 108.669388,
+        "type": "sounds"
+    },
+    "cant_help_falling_in_love": {
+        "title": "Can't Help Falling In Love With You",
+        "file": "/sd/songs/cant_help_falling_in_love.wav",
+        "artist": "Elvis Presley",
+        "duration": 203.52,
+        "type": "songs"
+    },
+    "caprice": {
+        "title": "Caprice in D-minor - Op. 59, No. 16",
+        "file": "/sd/guitar/caprice.wav",
+        "artist": "Matteo Carcassi",
+        "duration": 69.041633,
+        "type": "guitar",
+        "version": "full length"
+    },
+    "caprice_short": {
+        "title": "Caprice in D-minor - Op. 59, No. 16",
+        "file": "/sd/guitar/caprice_short.wav",
+        "artist": "Matteo Carcassi",
+        "duration": 17.312381,
+        "type": "guitar",
+        "version": "short"
+    },
+    "caprice_24": {
+        "title": "Caprice No. 24",
+        "file": "/sd/orchestral/caprice_24.wav",
+        "artist": "Niccolò Paganini",
+        "duration": 239.56898,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "caprice_24_short": {
+        "title": "Caprice No. 24",
+        "file": "/sd/orchestral/caprice_24_short.wav",
+        "artist": "Niccolò Paganini",
+        "duration": 29.153878,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "carry_on_wayward_son": {
+        "title": "Carry On Wayward Son",
+        "file": "/sd/songs/carry_on_wayward_son.wav",
+        "artist": "Kansas",
+        "duration": 323.640385,
+        "type": "songs"
+    },
+    "cheeseburger_in_paradise": {
+        "title": "Cheeseburger In Paradise",
+        "file": "/sd/songs/cheeseburger_in_paradise.wav",
+        "artist": "Jimmy Buffett",
+        "duration": 171.72898,
+        "type": "songs"
+    },
+    "cicadas_at_night": {
+        "title": "Cicadas at Night",
+        "file": "/sd/sounds/cicadas_at_night.wav",
+        "artist": "Recordings",
+        "duration": 71.423991,
+        "type": "sounds"
+    },
+    "come_sail_away": {
+        "title": "Come Sail Away",
+        "file": "/sd/songs/come_sail_away.wav",
+        "artist": "Styx",
+        "duration": 365.113469,
+        "type": "songs"
+    },
+    "bach_2_harpsichords": {
+        "title": "Concerto for 2 Harpsichords",
+        "file": "/sd/orchestral/bach_2_harpsichords.wav",
+        "artist": "Johann Sebastian Bach",
+        "duration": 310.256327,
+        "type": "orchestral"
+    },
+    "crazy_train": {
+        "title": "Crazy Train",
+        "file": "/sd/songs/crazy_train.wav",
+        "artist": "Ozzy Osbourne",
+        "duration": 291.73551,
+        "type": "songs"
+    },
+    "daydream_believer": {
+        "title": "Daydream Believer",
+        "file": "/sd/songs/daydream_believer.wav",
+        "artist": "Monkees",
+        "duration": 187.663673,
+        "type": "songs"
+    },
+    "dee_instrumental": {
+        "title": "Dee (Instrumental)",
+        "file": "/sd/modern_instrumental/dee_instrumental.wav",
+        "artist": "Ozzy Osbourne",
+        "duration": 51.670204,
+        "type": "modern instrumental"
+    },
+    "down_in_it": {
+        "title": "Down In It",
+        "file": "/sd/songs/down_in_it.wav",
+        "artist": "Nine Inch Nails",
+        "duration": 226.418435,
+        "type": "songs"
+    },
+    "dust_in_the_wind": {
+        "title": "Dust In The Wind",
+        "file": "/sd/songs/dust_in_the_wind.wav",
+        "artist": "Kansas",
+        "duration": 206.100975,
+        "type": "songs"
+    },
+    "entry_of_gladiators": {
+        "title": "Entrance of the Gladiators",
+        "file": "/sd/orchestral/entry_of_gladiators.wav",
+        "artist": "Julius Fučík",
+        "duration": 165.12,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "entry_of_gladiators_short": {
+        "title": "Entrance of the Gladiators",
+        "file": "/sd/orchestral/entry_of_gladiators_short.wav",
+        "artist": "Julius Fučík",
+        "duration": 24.417506,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "eye_of_the_tiger": {
+        "title": "Eye of the Tiger",
+        "file": "/sd/songs/eye_of_the_tiger.wav",
+        "artist": "Survivor",
+        "duration": 243.931429,
+        "type": "songs"
+    },
+    "for_whom_the_bell_tolls": {
+        "title": "For Whom The Bell Tolls",
+        "file": "/sd/songs/for_whom_the_bell_tolls.wav",
+        "artist": "Metallica",
+        "duration": 309.96898,
+        "type": "songs"
+    },
+    "forest_birds": {
+        "title": "Forest Birds",
+        "file": "/sd/sounds/forest_birds.wav",
+        "artist": "Recordings",
+        "duration": 61.656009,
+        "type": "sounds"
+    },
+    "free_bird": {
+        "title": "Free Bird",
+        "file": "/sd/songs/free_bird.wav",
+        "artist": "Lynyrd Skynyrd",
+        "duration": 607.738776,
+        "type": "songs"
+    },
+    "frogs_croaking": {
+        "title": "Frogs Croaking",
+        "file": "/sd/sounds/frogs_croaking.wav",
+        "artist": "Recordings",
+        "duration": 60.107755,
+        "type": "sounds"
+    },
+    "fur_elise": {
+        "title": "Für Elise",
+        "file": "/sd/piano/fur_elise.wav",
+        "artist": "Ludwig van Beethoven",
+        "duration": 168.672018,
+        "type": "piano",
+        "version": "full length"
+    },
+    "fur_elise_short": {
+        "title": "Für Elise",
+        "file": "/sd/piano/fur_elise_short.wav",
+        "artist": "Ludwig van Beethoven",
+        "duration": 31.592517,
+        "type": "piano",
+        "version": "short"
+    },
+    "fur_elise_very_short": {
+        "title": "Für Elise",
+        "file": "/sd/piano/fur_elise_very_short.wav",
+        "artist": "Ludwig van Beethoven",
+        "duration": 11.400998,
+        "type": "piano",
+        "version": "very short"
+    },
+    "gentle_rain": {
+        "title": "Gentle Rain",
+        "file": "/sd/sounds/gentle_rain.wav",
+        "artist": "Recordings",
+        "duration": 90.023991,
+        "type": "sounds"
+    },
+    "ghost_in_the_shell": {
+        "title": "Ghost In A Shell",
+        "file": "/sd/modern_instrumental/ghost_in_the_shell.wav",
+        "artist": "Ghost In The Shell",
+        "duration": 530.390204,
+        "type": "modern instrumental"
+    },
+    "going_to_california": {
+        "title": "Going to California",
+        "file": "/sd/songs/going_to_california.wav",
+        "artist": "Led Zeppelin",
+        "duration": 211.565714,
+        "type": "songs"
+    },
+    "rocky_gonna_fly_now": {
+        "title": "Gonna Fly Now (Rocky)",
+        "file": "/sd/modern_instrumental/rocky_gonna_fly_now.wav",
+        "artist": "Bill Conti",
+        "duration": 289.776327,
+        "type": "modern instrumental"
+    },
+    "guitar_etudes": {
+        "title": "Guitar Study: Etude No. 27",
+        "file": "/sd/guitar/guitar_etudes.wav",
+        "artist": "Dionisio Aguado",
+        "duration": 45.662041,
+        "type": "guitar"
+    },
+    "heart_shaped_box": {
+        "title": "Heart-Shaped Box",
+        "file": "/sd/songs/heart_shaped_box.wav",
+        "artist": "Nirvana",
+        "duration": 281.49551,
+        "type": "songs"
+    },
+    "hotel_california": {
+        "title": "Hotel California",
+        "file": "/sd/songs/hotel_california.wav",
+        "artist": "Eagles",
+        "duration": 389.799184,
+        "type": "songs"
+    },
+    "i_love_a_rainy_night": {
+        "title": "I Love A Rainy Night",
+        "file": "/sd/songs/i_love_a_rainy_night.wav",
+        "artist": "Eddie Rabbitt",
+        "duration": 194.76898,
+        "type": "songs"
+    },
+    "can_can": {
+        "title": "Infernal Galop (from Orpheus in the Underworld)",
+        "file": "/sd/orchestral/can_can.wav",
+        "artist": "Jacques Offenbach",
+        "duration": 253.048163,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "can_can_short": {
+        "title": "Infernal Galop (from Orpheus in the Underworld)",
+        "file": "/sd/orchestral/can_can_short.wav",
+        "artist": "Jacques Offenbach",
+        "duration": 104.045669,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "la_candeur": {
+        "title": "La candeur - 25 Etudes faciles et progressives - Op. 100",
+        "file": "/sd/piano/la_candeur.wav",
+        "artist": "Friedrich Burgmüller",
+        "duration": 54.047982,
+        "type": "piano"
+    },
+    "lightning_crashes": {
+        "title": "Lightning Crashes",
+        "file": "/sd/songs/lightning_crashes.wav",
+        "artist": "Live",
+        "duration": 327.392653,
+        "type": "songs"
+    },
+    "lithium": {
+        "title": "Lithium",
+        "file": "/sd/songs/lithium.wav",
+        "artist": "Nirvana",
+        "duration": 256.992653,
+        "type": "songs"
+    },
+    "magic_carpet_ride": {
+        "title": "Magic Carpet Ride",
+        "file": "/sd/songs/magic_carpet_ride.wav",
+        "artist": "Steppenwolf",
+        "duration": 266.684082,
+        "type": "songs"
+    },
+    "man_of_constant_sorrow": {
+        "title": "Man of Constant Sorrow",
+        "file": "/sd/songs/man_of_constant_sorrow.wav",
+        "artist": "Soggy Bottom Boys",
+        "duration": 190.032109,
+        "type": "songs"
+    },
+    "menuetto": {
+        "title": "Menuetto",
+        "file": "/sd/orchestral/menuetto.wav",
+        "artist": "Wolfgang Amadeus Mozart",
+        "duration": 327.053061,
+        "type": "orchestral"
+    },
+    "moonshadow": {
+        "title": "Moonshadow",
+        "file": "/sd/songs/moonshadow.wav",
+        "artist": "Cat Stevens",
+        "duration": 172.69551,
+        "type": "songs"
+    },
+    "morning_birds": {
+        "title": "Morning Birds",
+        "file": "/sd/sounds/morning_birds.wav",
+        "artist": "Recordings",
+        "duration": 36.072018,
+        "type": "sounds"
+    },
+    "morning_glory": {
+        "title": "Morning Glory",
+        "file": "/sd/songs/morning_glory.wav",
+        "artist": "Oasis",
+        "duration": 303.15102,
+        "type": "songs"
+    },
+    "morning_has_broken": {
+        "title": "Morning Has Broken",
+        "file": "/sd/songs/morning_has_broken.wav",
+        "artist": "Cat Stevens",
+        "duration": 200.124082,
+        "type": "songs"
+    },
+    "morning_mood": {
+        "title": "Morning Mood (Peer Gynt, Op. 23)",
+        "file": "/sd/orchestral/morning_mood.wav",
+        "artist": "Edvard Grieg",
+        "duration": 229.183039,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "morning_mood_short": {
+        "title": "Morning Mood (Peer Gynt, Op. 23)",
+        "file": "/sd/orchestral/morning_mood_short.wav",
+        "artist": "Edvard Grieg",
+        "duration": 47.80712,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "mr_roboto": {
+        "title": "Mr. Roboto",
+        "file": "/sd/songs/mr_roboto.wav",
+        "artist": "Styx",
+        "duration": 330.840816,
+        "type": "songs"
+    },
+    "myra_wake_up": {
+        "title": "Myra Wake Up!",
+        "file": "/sd/recordings/myra_wake_up.wav",
+        "artist": "Dad",
+        "duration": 9.002676,
+        "type": "recordings"
+    },
+    "rick_rolled_short": {
+        "title": "Never Gonna Give You Up",
+        "file": "/sd/songs/rick_rolled_short.wav",
+        "artist": "Rick Astley",
+        "duration": 17.558866,
+        "type": "songs",
+        "version": "short"
+    },
+    "never_gonna_give_you_up": {
+        "title": "Never Gonna Give You Up",
+        "file": "/sd/songs/never_gonna_give_you_up.wav",
+        "artist": "Rick Astley",
+        "duration": 213.432018,
+        "type": "songs",
+        "version": "full length"
+    },
+    "ocean_waves": {
+        "title": "Ocean Waves",
+        "file": "/sd/sounds/ocean_waves.wav",
+        "artist": "Recordings",
+        "duration": 146.256009,
+        "type": "sounds"
+    },
+    "of_wolf_and_man": {
+        "title": "Of Wolf And Man",
+        "file": "/sd/songs/of_wolf_and_man.wav",
+        "artist": "Metallica",
+        "duration": 256.604376,
+        "type": "songs"
+    },
+    "old_time_rock_and_roll": {
+        "title": "Old Time Rock & Roll",
+        "file": "/sd/songs/old_time_rock_and_roll.wav",
+        "artist": "Bob Seger",
+        "duration": 194.795102,
+        "type": "songs"
+    },
+    "one": {
+        "title": "One",
+        "file": "/sd/songs/one.wav",
+        "artist": "Metallica",
+        "duration": 447.477551,
+        "type": "songs"
+    },
+    "op_849_etude_4": {
+        "title": "Op. 849 Etude No. 4, Allegro (C major)",
+        "file": "/sd/piano/op_849_etude_4.wav",
+        "artist": "Carl Czerny",
+        "duration": 40.333696,
+        "type": "piano"
+    },
+    "peggy_sue": {
+        "title": "Peggy Sue",
+        "file": "/sd/songs/peggy_sue.wav",
+        "artist": "Buddy Holly",
+        "duration": 150.622041,
+        "type": "songs"
+    },
+    "spanish_guitar": {
+        "title": "Periodical Amusements for the Spanish Guitar, Book No. 13, 4",
+        "file": "/sd/guitar/spanish_guitar.wav",
+        "artist": "Bartolomeo Bortolazzi",
+        "duration": 179.826939,
+        "type": "guitar",
+        "version": "full length"
+    },
+    "spanish_guitar_short": {
+        "title": "Periodical Amusements for the Spanish Guitar, Book No. 13, 4",
+        "file": "/sd/guitar/spanish_guitar_short.wav",
+        "artist": "Bartolomeo Bortolazzi",
+        "duration": 23.201043,
+        "type": "guitar",
+        "version": "short"
+    },
+    "prelude": {
+        "title": "Prelude in G-Sharp Minor, Allegro - Op. 32, No. 12",
+        "file": "/sd/piano/prelude.wav",
+        "artist": "Sergei Rachmaninoff",
+        "duration": 145,
+        "type": "piano"
+    },
+    "rain_and_wind_chimes": {
+        "title": "Rain & Wind Chimes",
+        "file": "/sd/sounds/rain_and_wind_chimes.wav",
+        "artist": "Recordings",
+        "duration": 69.96,
+        "type": "sounds"
+    },
+    "rondo_alla_turca_short": {
+        "title": "Rondo alla Turca",
+        "file": "/sd/orchestral/rondo_alla_turca_short.wav",
+        "artist": "Wolfgang Amadeus Mozart",
+        "duration": 55.446621,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "rondo_alla_turca_very_short": {
+        "title": "Rondo alla Turca",
+        "file": "/sd/orchestral/rondo_alla_turca_very_short.wav",
+        "artist": "Wolfgang Amadeus Mozart",
+        "duration": 21.617914,
+        "type": "orchestral",
+        "version": "very short"
+    },
+    "rondo_alla_turca": {
+        "title": "Rondo alla Turca",
+        "file": "/sd/orchestral/rondo_alla_turca.wav",
+        "artist": "Wolfgang Amadeus Mozart",
+        "duration": 194.645714,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "shining_in_the_light": {
+        "title": "Shining In The Light",
+        "file": "/sd/songs/shining_in_the_light.wav",
+        "artist": "Page & Plant",
+        "duration": 240.675488,
+        "type": "songs"
+    },
+    "six_waltzes": {
+        "title": "Six Waltzes, No. 1 - Arranged for Guitar",
+        "file": "/sd/guitar/six_waltzes.wav",
+        "artist": "Maria Dolores Knoop",
+        "duration": 108.956735,
+        "type": "guitar",
+        "version": "full length"
+    },
+    "six_waltzes_short": {
+        "title": "Six Waltzes, No. 1 - Arranged for Guitar",
+        "file": "/sd/guitar/six_waltzes_short.wav",
+        "artist": "Maria Dolores Knoop",
+        "duration": 20.551882,
+        "type": "guitar",
+        "version": "short"
+    },
+    "sleep_through_the_static": {
+        "title": "Sleep Through The Static",
+        "file": "/sd/songs/sleep_through_the_static.wav",
+        "artist": "Jack Johnson",
+        "duration": 223.446281,
+        "type": "songs"
+    },
+    "smells_like_teen_spirit": {
+        "title": "Smells Like Teen Spirit",
+        "file": "/sd/songs/smells_like_teen_spirit.wav",
+        "artist": "Nirvana",
+        "duration": 301.139592,
+        "type": "songs"
+    },
+    "stairway_to_heaven": {
+        "title": "Stairway to Heaven",
+        "file": "/sd/songs/stairway_to_heaven.wav",
+        "artist": "Led Zeppelin",
+        "duration": 483.045374,
+        "type": "songs"
+    },
+    "summer_evening": {
+        "title": "Summer Evening",
+        "file": "/sd/sounds/summer_evening.wav",
+        "artist": "Recordings",
+        "duration": 771.983991,
+        "type": "sounds"
+    },
+    "sunrise": {
+        "title": "Sunrise",
+        "file": "/sd/songs/sunrise.wav",
+        "artist": "Norah Jones",
+        "duration": 200.644286,
+        "type": "songs"
+    },
+    "super_mario_galaxy": {
+        "title": "Super Mario Galaxy",
+        "file": "/sd/modern_instrumental/super_mario_galaxy.wav",
+        "artist": "Mario Galaxy Orchestra",
+        "duration": 202.631837,
+        "type": "modern instrumental"
+    },
+    "symphony_no_5_short": {
+        "title": "Symphony No. 5 in C minor - Op. 67",
+        "file": "/sd/orchestral/symphony_no_5_short.wav",
+        "artist": "Ludwig van Beethoven",
+        "duration": 31.592517,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "symphony_no_5_very_short": {
+        "title": "Symphony No. 5 in C minor - Op. 67",
+        "file": "/sd/orchestral/symphony_no_5_very_short.wav",
+        "artist": "Ludwig van Beethoven",
+        "duration": 11.400998,
+        "type": "orchestral",
+        "version": "very short"
+    },
+    "symphony_no_5": {
+        "title": "Symphony No. 5 in C minor - Op. 67",
+        "file": "/sd/orchestral/symphony_no_5.wav",
+        "artist": "Ludwig van Beethoven",
+        "duration": 439.571474,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "the_unforgiven": {
+        "title": "The Unforgiven",
+        "file": "/sd/songs/the_unforgiven.wav",
+        "artist": "Metallica",
+        "duration": 387.146961,
+        "type": "songs"
+    },
+    "three_little_birds": {
+        "title": "Three Little Birds",
+        "file": "/sd/songs/three_little_birds.wav",
+        "artist": "Bob Marley",
+        "duration": 179.696327,
+        "type": "songs"
+    },
+    "time_in_a_bottle": {
+        "title": "Time in a Bottle",
+        "file": "/sd/songs/time_in_a_bottle.wav",
+        "artist": "Jim Croce",
+        "duration": 146.495351,
+        "type": "songs"
+    },
+    "tribute": {
+        "title": "Tribute",
+        "file": "/sd/songs/tribute.wav",
+        "artist": "Tenacious D",
+        "duration": 248.084898,
+        "type": "songs"
+    },
+    "underground": {
+        "title": "Underground",
+        "file": "/sd/songs/underground.wav",
+        "artist": "Harvey Danger",
+        "duration": 279.940431,
+        "type": "songs"
+    },
+    "volcano": {
+        "title": "Volcano",
+        "file": "/sd/songs/volcano.wav",
+        "artist": "Jimmy Buffett",
+        "duration": 218.77551,
+        "type": "songs"
+    },
+    "myra_wake_up_little_one": {
+        "title": "Wake Up, Little One",
+        "file": "/sd/recordings/myra_wake_up_little_one.wav",
+        "artist": "Dad",
+        "duration": 6.378685,
+        "type": "recordings"
+    },
+    "werewolves_of_london": {
+        "title": "Werewolves of London",
+        "file": "/sd/songs/werewolves_of_london.wav",
+        "artist": "Warren Zevon",
+        "duration": 201.142857,
+        "type": "songs"
+    },
+    "which_way_are_you_goin": {
+        "title": "Which Way Are You Goin'",
+        "file": "/sd/songs/which_way_are_you_goin.wav",
+        "artist": "Jim Croce",
+        "duration": 138.34449,
+        "type": "songs"
+    },
+    "william_tell_short": {
+        "title": "William Tell Overture",
+        "file": "/sd/orchestral/william_tell_short.wav",
+        "artist": "Gioachino Rossini",
+        "duration": 46.050658,
+        "type": "orchestral",
+        "version": "short"
+    },
+    "william_tell": {
+        "title": "William Tell Overture",
+        "file": "/sd/orchestral/william_tell.wav",
+        "artist": "Gioachino Rossini",
+        "duration": 201.769796,
+        "type": "orchestral",
+        "version": "full length"
+    },
+    "wind_chimes": {
+        "title": "Wind Chimes",
+        "file": "/sd/sounds/wind_chimes.wav",
+        "artist": "Recordings",
+        "duration": 51.527982,
+        "type": "sounds"
+    }
+}

@@ -1,0 +1,6 @@
+{
+  "alarm_weekday": [7, 0],
+  "alarm_weekend": [8, 30],
+  "alarm_oneoff":  null,
+  "alarm_mode":    "off"
+}

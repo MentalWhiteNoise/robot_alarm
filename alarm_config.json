@@ -1,0 +1,32 @@
+{
+  "alarm": {
+    "hour": 7,
+    "minute": 0,
+    "days": "weekdays"
+  },
+  "timing": {
+    "wake_ramp_minutes": 10,
+    "snooze_minutes": 9,
+    "max_snoozes": 3,
+    "display_timeout_s": 30,
+    "volume_ramp_end": 0.7
+  },
+  "audio": {
+    "wake_song": "/sd/orchestral/morning_mood_short.wav",
+    "alarm_song": "/sd/songs/eye_of_the_tiger.wav",
+    "wake_max_volume": 0.6,
+    "alarm_volume": 0.9
+  },
+  "neopixels": {
+    "wake": {
+      "direction": "sunrise_out",
+      "max_brightness": 0.8
+    },
+    "alarm": {
+      "effect": "PULSE",
+      "brightness": 0.8,
+      "color": "warm_white",
+      "speed": "medium"
+    }
+  }
+}

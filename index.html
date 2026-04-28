@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Alarm</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1a1a2e;color:#e0e0e0;padding:16px;max-width:540px;margin:0 auto}
+h1{font-size:1.6rem;font-weight:700;color:#7aaace;margin-bottom:20px;text-align:center}
+h2{font-size:.8rem;font-weight:600;color:#7aaace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #2d3561}
+section{background:#16213e;border-radius:10px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:.82rem;color:#99aacc;margin-top:11px;margin-bottom:3px}
+label:first-of-type{margin-top:0}
+select,input[type=number]{width:100%;background:#0f3460;color:#e0e0e0;border:1px solid #2d3561;border-radius:6px;padding:8px 10px;font-size:.88rem;appearance:none;-webkit-appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%237aaace'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+input[type=range]{width:100%;accent-color:#7aaace;margin-top:2px}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+.vol-row{display:flex;align-items:center;gap:10px}
+.vol-row input[type=range]{flex:1}
+.vol-val{font-size:.82rem;color:#99aacc;min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
+.hidden{display:none}
+button{display:block;width:100%;padding:14px;margin-top:6px;background:#7aaace;color:#1a1a2e;font-size:1rem;font-weight:700;border:none;border-radius:8px;cursor:pointer;letter-spacing:.02em}
+button:active{opacity:.8}
+#status{text-align:center;font-size:.84rem;margin-top:10px;min-height:1.4em;color:#7aaace}
+</style>
+</head>
+<body>
+<h1>Robot Alarm</h1>
+
+<section>
+  <h2>Schedule</h2>
+  <div class="row">
+    <div><label>Hour (0–23)</label><input type="number" id="a_hour" min="0" max="23"></div>
+    <div><label>Minute (0–59)</label><input type="number" id="a_min" min="0" max="59"></div>
+  </div>
+  <label>Days</label>
+  <select id="a_days">
+    <option value="weekdays">Weekdays (Mon–Fri)</option>
+    <option value="weekends">Weekends (Sat–Sun)</option>
+    <option value="daily">Every day</option>
+  </select>
+</section>
+
+<section>
+  <h2>Timing</h2>
+  <div class="row">
+    <div><label>Wake ramp (min)</label><input type="number" id="t_ramp" min="1" max="60"></div>
+    <div><label>Snooze (min)</label><input type="number" id="t_snooze" min="1" max="30"></div>
+  </div>
+  <div class="row">
+    <div><label>Max snoozes</label><input type="number" id="t_maxsnz" min="1" max="10"></div>
+    <div><label>Display timeout (s)</label><input type="number" id="t_disp" min="5" max="300"></div>
+  </div>
+  <label>Volume ramp end (0–1)</label>
+  <div class="vol-row">
+    <input type="range" id="t_volramp" min="0" max="1" step="0.05" oninput="vlbl('t_volramp')">
+    <span class="vol-val" id="t_volramp_val">0.70</span>
+  </div>
+</section>
+
+<section>
+  <h2>Wake Song</h2>
+  <label>Type</label><select id="wk_type" onchange="fillTitles('wk')"></select>
+  <label>Title</label><select id="wk_title" onchange="fillVersions('wk')"></select>
+  <div id="wk_ver_wrap" class="hidden"><label>Version</label><select id="wk_ver"></select></div>
+  <label>Volume</label>
+  <div class="vol-row">
+    <input type="range" id="wk_vol" min="0" max="1" step="0.05" oninput="vlbl('wk_vol')">
+    <span class="vol-val" id="wk_vol_val">0.60</span>
+  </div>
+</section>
+
+<section>
+  <h2>Alarm Song</h2>
+  <label>Type</label><select id="al_type" onchange="fillTitles('al')"></select>
+  <label>Title</label><select id="al_title" onchange="fillVersions('al')"></select>
+  <div id="al_ver_wrap" class="hidden"><label>Version</label><select id="al_ver"></select></div>
+  <label>Volume</label>
+  <div class="vol-row">
+    <input type="range" id="al_vol" min="0" max="1" step="0.05" oninput="vlbl('al_vol')">
+    <span class="vol-val" id="al_vol_val">0.90</span>
+  </div>
+</section>
+
+<section>
+  <h2>Wake Light</h2>
+  <label>Direction</label>
+  <select id="wl_dir">
+    <option value="sunrise_out">Sunrise — center out</option>
+    <option value="sunrise_in">Radiating Dawn — outer in</option>
+  </select>
+  <label>Max Brightness</label>
+  <div class="vol-row">
+    <input type="range" id="wl_bright" min="0" max="1" step="0.05" oninput="vlbl('wl_bright')">
+    <span class="vol-val" id="wl_bright_val">0.80</span>
+  </div>
+</section>
+
+<section>
+  <h2>Alarm Light</h2>
+  <label>Effect</label>
+  <select id="fx_effect" onchange="updateFx()">
+    <option value="SOLID">Solid</option>
+    <option value="PULSE">Pulse (breathe)</option>
+    <option value="CHASE">Chase (outer orbit)</option>
+    <option value="SUNRISE">Sunrise (hold max wake state)</option>
+    <option value="WAVE">Wave (center→out sweep)</option>
+    <option value="DUAL_SPIN">Dual Spin (two rings)</option>
+    <option value="FLASH">Flash (inner / outer alternating)</option>
+  </select>
+  <div id="fx_color_row">
+    <label id="fx_color_lbl">Color</label>
+    <select id="fx_color"></select>
+  </div>
+  <div id="fx_color2_row" class="hidden">
+    <label>Color 2 (inner ring)</label>
+    <select id="fx_color2"></select>
+  </div>
+  <label>Brightness</label>
+  <div class="vol-row">
+    <input type="range" id="fx_bright" min="0" max="1" step="0.05" oninput="vlbl('fx_bright')">
+    <span class="vol-val" id="fx_bright_val">0.80</span>
+  </div>
+  <div id="fx_speed_row">
+    <label>Speed</label>
+    <select id="fx_speed">
+      <option value="slow">Slow</option>
+      <option value="medium">Medium</option>
+      <option value="fast">Fast</option>
+    </select>
+  </div>
+</section>
+
+<button onclick="save()">Save</button>
+<div id="status"></div>
+
+<script>
+const COLORS=[
+  ['warm_white','Warm White'],['cool_white','Cool White'],['pure_white','Pure White'],
+  ['red','Red'],['orange','Orange'],['amber','Amber'],['yellow','Yellow'],
+  ['green','Green'],['cyan','Cyan'],['blue','Blue'],['purple','Purple'],['magenta','Magenta']
+];
+const FX_NO_COLOR=new Set(['SUNRISE']);
+const FX_COLOR2=new Set(['DUAL_SPIN','FLASH']);
+const FX_NO_SPEED=new Set(['SOLID','SUNRISE']);
+
+// groups[type][title] = [{file, version?}, ...]
+let groups={};
+// pathMap[file] = {type, title, version}
+let pathMap={};
+let cfg={};
+
+function buildGroups(sounds){
+  groups={};pathMap={};
+  for(const e of Object.values(sounds)){
+    const{type:t,title:ti,file:f}=e;
+    if(!groups[t])groups[t]={};
+    if(!groups[t][ti])groups[t][ti]=[];
+    groups[t][ti].push(e);
+    pathMap[f]={type:t,title:ti,version:e.version||null};
+  }
+}
+
+function typeLabel(t){return t.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+
+function fillTypes(pfx,selType){
+  const sel=document.getElementById(pfx+'_type');
+  sel.innerHTML='';
+  Object.keys(groups).sort().forEach(t=>{
+    const o=document.createElement('option');
+    o.value=t;o.textContent=typeLabel(t);
+    if(t===selType)o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+function fillTitles(pfx,selTitle){
+  const t=document.getElementById(pfx+'_type').value;
+  const sel=document.getElementById(pfx+'_title');
+  sel.innerHTML='';
+  Object.keys(groups[t]||{}).sort().forEach(ti=>{
+    const o=document.createElement('option');
+    o.value=ti;o.textContent=ti;
+    if(ti===selTitle)o.selected=true;
+    sel.appendChild(o);
+  });
+  fillVersions(pfx);
+}
+
+function fillVersions(pfx,selVer){
+  const t=document.getElementById(pfx+'_type').value;
+  const ti=document.getElementById(pfx+'_title').value;
+  const entries=(groups[t]||{})[ti]||[];
+  const wrap=document.getElementById(pfx+'_ver_wrap');
+  const sel=document.getElementById(pfx+'_ver');
+  sel.innerHTML='';
+  if(entries.length>1){
+    wrap.classList.remove('hidden');
+    entries.forEach(e=>{
+      const o=document.createElement('option');
+      const v=e.version||e.file;
+      o.value=e.file;o.textContent=v;
+      if(e.file===selVer||e.version===selVer)o.selected=true;
+      sel.appendChild(o);
+    });
+  }else{
+    wrap.classList.add('hidden');
+  }
+}
+
+function getPath(pfx){
+  const t=document.getElementById(pfx+'_type').value;
+  const ti=document.getElementById(pfx+'_title').value;
+  const entries=(groups[t]||{})[ti]||[];
+  if(entries.length===0)return'';
+  if(entries.length===1)return entries[0].file;
+  return document.getElementById(pfx+'_ver').value;
+}
+
+function pickPath(pfx,path){
+  const info=pathMap[path];
+  if(!info)return;
+  fillTypes(pfx,info.type);
+  fillTitles(pfx,info.title);
+  if(info.version){
+    const sel=document.getElementById(pfx+'_ver');
+    // version dropdown stores file as value; find matching entry
+    const t=info.type,ti=info.title;
+    const entry=(groups[t]||{})[ti]||[];
+    const match=entry.find(e=>e.version===info.version);
+    if(match)sel.value=match.file;
+  }
+}
+
+function vlbl(id){
+  const v=parseFloat(document.getElementById(id).value);
+  document.getElementById(id+'_val').textContent=v.toFixed(2);
+}
+
+function fillColorSelect(id,val){
+  const sel=document.getElementById(id);
+  sel.innerHTML='';
+  COLORS.forEach(([v,l])=>{
+    const o=document.createElement('option');
+    o.value=v;o.textContent=l;
+    sel.appendChild(o);
+  });
+  if(val)sel.value=val;
+}
+
+function updateFx(){
+  const fx=document.getElementById('fx_effect').value;
+  const noC=FX_NO_COLOR.has(fx);
+  const c2=FX_COLOR2.has(fx);
+  const noS=FX_NO_SPEED.has(fx);
+  document.getElementById('fx_color_row').classList.toggle('hidden',noC);
+  document.getElementById('fx_color2_row').classList.toggle('hidden',!c2);
+  document.getElementById('fx_speed_row').classList.toggle('hidden',noS);
+  document.getElementById('fx_color_lbl').textContent=c2?'Color 1 (outer ring)':'Color';
+}
+
+function populateForm(){
+  const a=cfg.alarm,t=cfg.timing,au=cfg.audio,n=cfg.neopixels;
+  document.getElementById('a_hour').value=a.hour;
+  document.getElementById('a_min').value=a.minute;
+  document.getElementById('a_days').value=a.days;
+  document.getElementById('t_ramp').value=t.wake_ramp_minutes;
+  document.getElementById('t_snooze').value=t.snooze_minutes;
+  document.getElementById('t_maxsnz').value=t.max_snoozes;
+  document.getElementById('t_disp').value=t.display_timeout_s;
+  document.getElementById('t_volramp').value=t.volume_ramp_end;
+  vlbl('t_volramp');
+  document.getElementById('wk_vol').value=au.wake_max_volume;vlbl('wk_vol');
+  document.getElementById('al_vol').value=au.alarm_volume;vlbl('al_vol');
+  pickPath('wk',au.wake_song);
+  pickPath('al',au.alarm_song);
+  document.getElementById('wl_dir').value=n.wake.direction;
+  document.getElementById('wl_bright').value=n.wake.max_brightness;vlbl('wl_bright');
+  document.getElementById('fx_effect').value=n.alarm.effect;
+  fillColorSelect('fx_color',n.alarm.color||null);
+  fillColorSelect('fx_color2',n.alarm.color2||null);
+  document.getElementById('fx_bright').value=n.alarm.brightness;vlbl('fx_bright');
+  if(n.alarm.speed)document.getElementById('fx_speed').value=n.alarm.speed;
+  updateFx();
+}
+
+async function init(){
+  try{
+    const[sr,cr]=await Promise.all([fetch('/sounds.json'),fetch('/config.json')]);
+    const sounds=await sr.json();
+    cfg=await cr.json();
+    buildGroups(sounds);
+    // Init type dropdowns before populating form
+    fillTypes('wk');fillTitles('wk');
+    fillTypes('al');fillTitles('al');
+    populateForm();
+  }catch(e){
+    document.getElementById('status').textContent='Load error: '+e;
+  }
+}
+
+async function save(){
+  const fx=document.getElementById('fx_effect').value;
+  const alarmNeo={
+    effect:fx,
+    brightness:parseFloat(document.getElementById('fx_bright').value)
+  };
+  if(!FX_NO_COLOR.has(fx))alarmNeo.color=document.getElementById('fx_color').value;
+  if(FX_COLOR2.has(fx))alarmNeo.color2=document.getElementById('fx_color2').value;
+  if(!FX_NO_SPEED.has(fx))alarmNeo.speed=document.getElementById('fx_speed').value;
+
+  const body={
+    alarm:{
+      hour:parseInt(document.getElementById('a_hour').value),
+      minute:parseInt(document.getElementById('a_min').value),
+      days:document.getElementById('a_days').value
+    },
+    timing:{
+      wake_ramp_minutes:parseInt(document.getElementById('t_ramp').value),
+      snooze_minutes:parseInt(document.getElementById('t_snooze').value),
+      max_snoozes:parseInt(document.getElementById('t_maxsnz').value),
+      display_timeout_s:parseInt(document.getElementById('t_disp').value),
+      volume_ramp_end:parseFloat(document.getElementById('t_volramp').value)
+    },
+    audio:{
+      wake_song:getPath('wk'),
+      alarm_song:getPath('al'),
+      wake_max_volume:parseFloat(document.getElementById('wk_vol').value),
+      alarm_volume:parseFloat(document.getElementById('al_vol').value)
+    },
+    neopixels:{
+      wake:{
+        direction:document.getElementById('wl_dir').value,
+        max_brightness:parseFloat(document.getElementById('wl_bright').value)
+      },
+      alarm:alarmNeo
+    }
+  };
+
+  const st=document.getElementById('status');
+  st.textContent='Saving…';
+  try{
+    const res=await fetch('/save',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const d=await res.json();
+    st.textContent=d.ok?'Saved.':'Error: '+(d.error||'unknown');
+  }catch(e){
+    st.textContent='Save failed: '+e;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

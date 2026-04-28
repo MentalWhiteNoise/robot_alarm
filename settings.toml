@@ -1,0 +1,20 @@
+# Robot Alarm — Qualia CIRCUITPY/settings.toml
+#
+# Copy this file to the ROOT of the Qualia's CIRCUITPY drive and fill in values.
+# The key names here MUST exactly match the os.getenv() calls in qualia_code.py.
+# If any key is renamed, update qualia_code.py at the same time and note it here.
+#
+# Current keys read by qualia_code.py:
+#   os.getenv("WIFI_SSID")          → WiFi network name
+#   os.getenv("WIFI_PASSWORD")      → WiFi password
+#   os.getenv("TIMEZONE_OFFSET")    → hours from UTC (string, e.g. "-5")
+
+WIFI_SSID = "your_network_name"
+WIFI_PASSWORD = "your_password"
+
+# Hours offset from UTC. Update twice a year for DST.
+# Eastern: -5 (Nov–Mar EST)  or  -4 (Mar–Nov EDT)
+# Central: -6 (Nov–Mar CST)  or  -5 (Mar–Nov CDT)
+# Mountain: -7 (Nov–Mar MST)  or  -6 (Mar–Nov MDT)
+# Pacific: -8 (Nov–Mar PST)  or  -7 (Mar–Nov PDT)
+TIMEZONE_OFFSET = "-5"
