@@ -1,3 +1,4 @@
+# S2 Mini
 import time
 import board
 import busio
@@ -39,13 +40,19 @@ dac.dac_volume = -20.0
 time.sleep(0.35)
 
 # ── SD warmup — prevents I2S DMA contention on first play ──────────────────
-with open(cfg["audio"]["wake_song"], "rb") as f:
-    while f.read(4096):
+_warmup_path = cfg.get("audio", {}).get("wake_song") or \
+    cfg.get("alarms", {}).get("weekday", {}).get("wake", {}).get("audio", {}).get("song", "")
+if _warmup_path:
+    try:
+        with open(_warmup_path, "rb") as f:
+            while f.read(4096):
+                pass
+    except OSError:
         pass
 
 # ── I2S / UART ────────────────────────────────────────────────────────────
 i2s = audiobusio.I2SOut(board.IO39, board.IO40, board.IO33)
-uart = busio.UART(board.IO17, board.IO16, baudrate=9600, timeout=0)
+uart = busio.UART(board.IO17, board.IO16, baudrate=115200, timeout=0)
 uart_buf = b""
 
 # ── State tracking ─────────────────────────────────────────────────────────
@@ -126,12 +133,18 @@ def stop_audio():
 
 def play_song(path, vol):
     global wave_file, current_song
+    if not path:
+        return
     stop_audio()
-    wave_file = open(path, "rb")
-    wave = audiocore.WaveFile(wave_file)
-    set_volume(vol)
-    i2s.play(wave, loop=True)
-    current_song = path
+    try:
+        wave_file = open(path, "rb")
+        wave = audiocore.WaveFile(wave_file)
+        set_volume(vol)
+        i2s.play(wave, loop=True)
+        current_song = path
+    except OSError:
+        wave_file = None
+        current_song = None
 
 
 def send(msg):
@@ -145,47 +158,64 @@ def apply_set(kv):
     key, val = kv.split("=", 1)
     parts = key.strip().split(".")
     d = cfg
+    for p in parts[:-1]:
+        d = d.setdefault(p, {})
+    leaf = parts[-1]
     try:
-        for p in parts[:-1]:
-            d = d[p]
-        leaf = parts[-1]
+        d[leaf] = int(val)
+    except ValueError:
         try:
-            d[leaf] = int(val)
+            d[leaf] = float(val)
         except ValueError:
-            try:
-                d[leaf] = float(val)
-            except ValueError:
-                d[leaf] = val
-    except (KeyError, TypeError):
-        pass
+            d[leaf] = val
+
+
+def _push_alarm_block(key, a):
+    """Emit flat CONFIG lines for one alarm entry (weekday/weekend/oneoff)."""
+    p = f"alarms.{key}"
+    send(f"{p}.enabled={1 if a.get('enabled') else 0}")
+    send(f"{p}.hour={a.get('hour', 7)}")
+    send(f"{p}.minute={a.get('minute', 0)}")
+    if key == "oneoff":
+        send(f"{p}.date={a.get('date', '2026-01-01')}")
+    wake = a.get("wake", {})
+    send(f"{p}.wake.enabled={1 if wake.get('enabled', True) else 0}")
+    send(f"{p}.wake.ramp_minutes={wake.get('ramp_minutes', 10)}")
+    wa = wake.get("audio", {})
+    send(f"{p}.wake.audio.enabled={1 if wa.get('enabled', True) else 0}")
+    send(f"{p}.wake.audio.song={wa.get('song', '')}")
+    send(f"{p}.wake.audio.max_volume={wa.get('max_volume', 0.6)}")
+    send(f"{p}.wake.audio.volume_ramp_end={wa.get('volume_ramp_end', 0.7)}")
+    wl = wake.get("lighting", {})
+    send(f"{p}.wake.lighting.enabled={1 if wl.get('enabled', True) else 0}")
+    send(f"{p}.wake.lighting.direction={wl.get('direction', 'sunrise_out')}")
+    send(f"{p}.wake.lighting.max_brightness={wl.get('max_brightness', 0.8)}")
+    ala = a.get("alarm", {})
+    send(f"{p}.alarm.snooze_minutes={ala.get('snooze_minutes', 9)}")
+    send(f"{p}.alarm.max_snoozes={ala.get('max_snoozes', 3)}")
+    aa = ala.get("audio", {})
+    send(f"{p}.alarm.audio.enabled={1 if aa.get('enabled', True) else 0}")
+    send(f"{p}.alarm.audio.song={aa.get('song', '')}")
+    send(f"{p}.alarm.audio.volume={aa.get('volume', 0.9)}")
+    al = ala.get("lighting", {})
+    send(f"{p}.alarm.lighting.enabled={1 if al.get('enabled', True) else 0}")
+    send(f"{p}.alarm.lighting.effect={al.get('effect', 'PULSE')}")
+    send(f"{p}.alarm.lighting.brightness={al.get('brightness', 0.8)}")
+    send(f"{p}.alarm.lighting.color={al.get('color', 'warm_white')}")
+    for opt in ("color2", "speed"):
+        if opt in al:
+            send(f"{p}.alarm.lighting.{opt}={al[opt]}")
+    time.sleep(0.01)
 
 
 def push_config():
-    lines = ["CONFIG_START"]
-    lines += [
-        f"alarm.hour={cfg['alarm']['hour']}",
-        f"alarm.minute={cfg['alarm']['minute']}",
-        f"alarm.days={cfg['alarm']['days']}",
-        f"timing.wake_ramp_minutes={cfg['timing']['wake_ramp_minutes']}",
-        f"timing.snooze_minutes={cfg['timing']['snooze_minutes']}",
-        f"timing.max_snoozes={cfg['timing']['max_snoozes']}",
-        f"timing.display_timeout_s={cfg['timing']['display_timeout_s']}",
-        f"timing.volume_ramp_end={cfg['timing']['volume_ramp_end']}",
-        f"audio.wake_max_volume={cfg['audio']['wake_max_volume']}",
-        f"audio.alarm_volume={cfg['audio']['alarm_volume']}",
-        f"neopixels.wake.direction={cfg['neopixels']['wake']['direction']}",
-        f"neopixels.wake.max_brightness={cfg['neopixels']['wake']['max_brightness']}",
-        f"neopixels.alarm.effect={cfg['neopixels']['alarm']['effect']}",
-        f"neopixels.alarm.brightness={cfg['neopixels']['alarm']['brightness']}",
-    ]
-    # Optional per-effect fields
-    for opt in ("color", "color2", "speed"):
-        if opt in cfg["neopixels"]["alarm"]:
-            lines.append(f"neopixels.alarm.{opt}={cfg['neopixels']['alarm'][opt]}")
-    lines.append("CONFIG_END")
-    for line in lines:
-        send(line)
-        time.sleep(0.01)
+    send("CONFIG_START")
+    send(f"global.display_timeout_s={cfg.get('global', {}).get('display_timeout_s', 10)}")
+    alarms = cfg.get("alarms", {})
+    for key in ("weekday", "weekend", "oneoff"):
+        if key in alarms:
+            _push_alarm_block(key, alarms[key])
+    send("CONFIG_END")
 
 
 def handle_button(state, count):
@@ -236,15 +266,18 @@ while True:
 
         elif cmd == "PLAY WAKE":
             current_state = STATE_WAKE_RAMP
-            play_song(cfg["audio"]["wake_song"], 0.0)  # Qualia ramps vol via VOL
+            au = cfg.get("audio", {})
+            play_song(au.get("wake_song", ""), 0.0)  # Qualia ramps vol via VOL
 
         elif cmd == "PLAY ALARM":
             current_state = STATE_ALARMING
-            play_song(cfg["audio"]["alarm_song"], cfg["audio"]["alarm_volume"])
+            au = cfg.get("audio", {})
+            play_song(au.get("alarm_song", ""), au.get("alarm_volume", 0.9))
 
         elif cmd in ("PLAY SNOOZE", "PLAY AWAKE"):
             current_state = STATE_SNOOZED
-            play_song(cfg["audio"]["wake_song"], cfg["audio"]["wake_max_volume"])
+            au = cfg.get("audio", {})
+            play_song(au.get("wake_song", ""), au.get("wake_max_volume", 0.6))
 
         elif cmd == "STOP":
             current_state = STATE_IDLE
@@ -258,6 +291,15 @@ while True:
 
         elif cmd == "REQUEST_CONFIG":
             push_config()
+
+        elif cmd == "SAVE_CONFIG":
+            try:
+                to_save = {"alarms": cfg.get("alarms", {}),
+                           "global": cfg.get("global", {})}
+                with open("/sd/alarm_config.json", "w") as f:
+                    json.dump(to_save, f)
+            except OSError:
+                pass
 
         elif cmd.startswith("SET "):
             apply_set(cmd[4:])
@@ -302,11 +344,13 @@ while True:
 
     # SD keepalive — small read every 30 s while idle to prevent standby / DMA fault
     if not i2s.playing and (now - last_keepalive) >= KEEPALIVE_INTERVAL:
-        try:
-            with open(cfg["audio"]["wake_song"], "rb") as f:
-                f.read(512)
-        except OSError:
-            pass
+        _ka = cfg.get("audio", {}).get("wake_song", "")
+        if _ka:
+            try:
+                with open(_ka, "rb") as f:
+                    f.read(512)
+            except OSError:
+                pass
         last_keepalive = now
 
     if now - last_heartbeat >= HEARTBEAT_INTERVAL:

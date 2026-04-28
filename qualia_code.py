@@ -1,6 +1,8 @@
+# Qualia
 import time, math, os, json, board, busio, displayio, terminalio, vectorio, rtc
 import neopixel
 from adafruit_display_text import label
+from adafruit_bitmap_font import bitmap_font
 from adafruit_qualia.displays.round40 import Round40
 from adafruit_qualia.peripherals import Peripherals
 
@@ -38,9 +40,11 @@ pixels.fill((0, 0, 0, 0))
 pixels.show()
 
 # ── UART ───────────────────────────────────────────────────────────────────
-uart     = busio.UART(board.TX, board.A1, baudrate=9600, timeout=0)
-uart_buf = b""
-in_cfg   = False
+uart     = busio.UART(board.TX, board.A1, baudrate=115200, timeout=0,
+                      receiver_buffer_size=512)
+uart_buf        = b""
+in_cfg          = False
+_config_received = False
 
 def send(msg):
     uart.write((msg + "\n").encode())
@@ -75,30 +79,88 @@ def save_cfg():
     except OSError:
         pass  # CIRCUITPY may be read-only
 
-def push_audio_to_s2():
-    """Notify S2 Mini of updated audio paths / volumes."""
-    send(f"SET audio.wake_song={cfg['audio']['wake_song']}")
-    send(f"SET audio.alarm_song={cfg['audio']['alarm_song']}")
-    send(f"SET audio.wake_max_volume={cfg['audio']['wake_max_volume']}")
-    send(f"SET audio.alarm_volume={cfg['audio']['alarm_volume']}")
+def _active_alarm():
+    """Return (key, alarm_dict) for the highest-priority alarm that applies today,
+    or (None, None) if nothing is scheduled.
+    Priority: oneoff > weekday > weekend."""
+    t  = time.localtime()
+    wd = t.tm_wday  # 0=Mon … 6=Sun
+    alarms = cfg.get("alarms", {})
+
+    # oneoff: must be enabled and date must match today
+    oo = alarms.get("oneoff", {})
+    if oo.get("enabled"):
+        try:
+            yy, mm, dd = (int(x) for x in oo["date"].split("-"))
+            if (yy, mm, dd) == (t.tm_year, t.tm_mon, t.tm_mday):
+                return "oneoff", oo
+        except (KeyError, ValueError):
+            pass
+
+    if wd < 5:
+        wk = alarms.get("weekday", {})
+        if wk.get("enabled"):
+            return "weekday", wk
+    else:
+        we = alarms.get("weekend", {})
+        if we.get("enabled"):
+            return "weekend", we
+
+    return None, None
+
+def push_active_alarm_audio(alarm):
+    """Send the active alarm's audio settings to S2 Mini before play commands."""
+    if alarm is None:
+        return
+    wake  = alarm.get("wake",  {})
+    ala   = alarm.get("alarm", {})
+    wa    = wake.get("audio",  {})
+    aa    = ala.get("audio",   {})
+    send(f"SET audio.wake_song={wa.get('song', '')}")
+    send(f"SET audio.wake_max_volume={wa.get('max_volume', 0.6)}")
+    send(f"SET audio.volume_ramp_end={wa.get('volume_ramp_end', 0.7)}")
+    send(f"SET audio.alarm_song={aa.get('song', '')}")
+    send(f"SET audio.alarm_volume={aa.get('volume', 0.9)}")
+
+def _push_dict_to_s2(d, prefix=""):
+    """Recursively walk cfg dict and send SET key=val for every leaf to S2 Mini."""
+    for k, v in d.items():
+        key = f"{prefix}.{k}" if prefix else str(k)
+        if isinstance(v, dict):
+            _push_dict_to_s2(v, key)
+        elif isinstance(v, bool):
+            send(f"SET {key}={1 if v else 0}")
+        else:
+            send(f"SET {key}={v}")
 
 # ── Load config ────────────────────────────────────────────────────────────
-_DEFAULT_CFG = {
-    "alarm":   {"hour": 7, "minute": 0, "days": "weekdays"},
-    "timing":  {"wake_ramp_minutes": 10, "snooze_minutes": 9, "max_snoozes": 3,
-                "display_timeout_s": 10, "volume_ramp_end": 0.7},
-    "audio":   {"wake_song": "/sd/orchestral/morning_mood_short.wav",
-                "alarm_song": "/sd/songs/eye_of_the_tiger.wav",
-                "wake_max_volume": 0.6, "alarm_volume": 0.9},
-    "neopixels": {
-        "wake":  {"direction": "sunrise_out", "max_brightness": 0.8},
-        "alarm": {"effect": "PULSE", "brightness": 0.8,
-                  "color": "warm_white", "speed": "medium"},
+_DEFAULT_ALARM = {
+    "enabled": True, "hour": 7, "minute": 0,
+    "wake": {
+        "enabled": True, "ramp_minutes": 10,
+        "audio":    {"enabled": True, "song": "/sd/orchestral/morning_mood_short.wav",
+                     "max_volume": 0.6, "volume_ramp_end": 0.7},
+        "lighting": {"enabled": True, "direction": "sunrise_out", "max_brightness": 0.8},
     },
+    "alarm": {
+        "snooze_minutes": 9, "max_snoozes": 3,
+        "audio":    {"enabled": True, "song": "/sd/songs/eye_of_the_tiger.wav", "volume": 0.9},
+        "lighting": {"enabled": True, "effect": "PULSE", "brightness": 0.8,
+                     "color": "warm_white", "speed": "medium"},
+    },
+}
+_DEFAULT_CFG = {
+    "alarms": {
+        "weekday": dict(_DEFAULT_ALARM),
+        "weekend": dict(_DEFAULT_ALARM),
+        "oneoff":  dict(_DEFAULT_ALARM, enabled=False, date="2026-01-01"),
+    },
+    "global": {"display_timeout_s": 10},
 }
 try:
     with open("/alarm_config.json") as f:
         cfg = json.load(f)
+    _config_received = True   # saved config is valid — show IP without waiting for S2
 except (OSError, ValueError):
     cfg = _DEFAULT_CFG
 
@@ -123,6 +185,7 @@ try:
         _wifi_connected = True
         _local_ip       = str(wifi.radio.ipv4_address)
         print(f"WiFi: {_local_ip}")
+        send("REQUEST_CONFIG")  # re-request in case boot CONFIG was dropped during WiFi setup
 except Exception as e:
     print(f"WiFi failed: {e}")
 
@@ -160,7 +223,10 @@ if _wifi_connected and _pool:
                 new_cfg = json.loads(body)
                 deep_update(cfg, new_cfg)
                 save_cfg()
-                push_audio_to_s2()
+                _push_dict_to_s2(new_cfg)
+                send("SAVE_CONFIG")
+                _, active = _active_alarm()
+                push_active_alarm_audio(active)
                 return Response(req, b'{"ok":true}', content_type="application/json")
             except Exception as e:
                 return Response(req, f'{{"error":"{e}"}}'.encode(),
@@ -248,7 +314,7 @@ def neo_wake_ramp(t, direction, max_br):
 
 def neo_alarm_effect(dt):
     global _eph
-    n   = cfg["neopixels"]["alarm"]
+    n   = _cur_alarm.get("alarm", {}).get("lighting", {})
     ef  = n.get("effect", "PULSE")
     br  = n.get("brightness", 0.8)
     c1  = get_color(n.get("color",  "warm_white"))
@@ -325,41 +391,90 @@ _lbl_time  = label.Label(terminalio.FONT, text="--:--",  color=0x5588AA,
 _lbl_date  = label.Label(terminalio.FONT, text="--- --", color=0x2A3D4E,
                           scale=4,  anchor_point=(0.5, 0.5),
                           anchored_position=(CX, CY + 100))
-_lbl_state = label.Label(terminalio.FONT, text="",       color=0x336688,
-                          scale=3,  anchor_point=(0.5, 0.5),
-                          anchored_position=(CX, CY + 175))
+_lbl_state = label.Label(terminalio.FONT, text="",       color=0x2A3D4E,
+                          scale=2,  anchor_point=(0.5, 0.5),
+                          anchored_position=(CX, CY + 174))
 scene.append(_lbl_time)
 scene.append(_lbl_date)
 scene.append(_lbl_state)
 display.root_group = scene
 
-_prev_disp = ("", "", "")
+_icon_font      = bitmap_font.load_font("/material_icons_32.bdf")
+_lbl_alarm_icon = label.Label(_icon_font, text=chr(0xE856), color=0x1E2D3A,
+                               anchor_point=(0.5, 0.5),
+                               anchored_position=(CX - 40, CY - 140))
+scene.append(_lbl_alarm_icon)
+
+# AUTO mode indicator: box outline + "AUTO" text + slash overlay
+# Slash drawn in face bg color — "erases" through the box when visible (always-on mode)
+_ABOX_X = CX + 24    # box top-left x (centered at CX+40)
+_ABOX_Y = CY - 151   # box top-left y (centered at CY-140)
+_ABOX_W = 32
+_ABOX_H = 22
+_P_ABOX  = displayio.Palette(1); _P_ABOX[0]  = 0x335566
+_P_SLASH = displayio.Palette(1); _P_SLASH[0] = 0x0D1E2E  # face bg = erases box
+
+scene.append(vectorio.Rectangle(pixel_shader=_P_ABOX, width=_ABOX_W, height=2,
+                                 x=_ABOX_X, y=_ABOX_Y))
+scene.append(vectorio.Rectangle(pixel_shader=_P_ABOX, width=_ABOX_W, height=2,
+                                 x=_ABOX_X, y=_ABOX_Y + _ABOX_H - 2))
+scene.append(vectorio.Rectangle(pixel_shader=_P_ABOX, width=2, height=_ABOX_H,
+                                 x=_ABOX_X, y=_ABOX_Y))
+scene.append(vectorio.Rectangle(pixel_shader=_P_ABOX, width=2, height=_ABOX_H,
+                                 x=_ABOX_X + _ABOX_W - 2, y=_ABOX_Y))
+_lbl_auto = label.Label(terminalio.FONT, text="AUTO", color=0x335566,
+                         scale=1, anchor_point=(0.5, 0.5),
+                         anchored_position=(CX + 40, CY - 140))
+scene.append(_lbl_auto)
+
+_slash_group = displayio.Group()
+_slash_group.append(vectorio.Polygon(
+    pixel_shader=_P_SLASH, x=_ABOX_X, y=_ABOX_Y,
+    points=[(1, _ABOX_H-2), (5, _ABOX_H-2), (_ABOX_W-2, 1), (_ABOX_W-6, 1)],
+))
+_slash_group.hidden = True  # shown when always-on, hidden when auto mode
+scene.append(_slash_group)
+
+_prev_disp = ("", "", "", "", "")
 
 def update_display_labels(cur_state, snooze_cnt):
     global _prev_disp
     t  = time.localtime()
     ts = f"{t.tm_hour:02d}:{t.tm_min:02d}"
     ds = f"{_DAYS[t.tm_wday]} {_MONTHS[t.tm_mon]} {t.tm_mday}"
+
+    # auxiliary text — icons now handle alarm state and display mode
     if cur_state == S_SNOOZED:
-        left = cfg["timing"]["max_snoozes"] - snooze_cnt
-        ss = f"SNOOZED  {left} left"
-    elif cur_state == S_ALARMING:
-        ss = "ALARM"
+        left = _cur_alarm.get("alarm", {}).get("max_snoozes", 3) - snooze_cnt
+        ss = f"{left} left"
     elif cur_state in (S_TEST_WAKE, S_TEST_ALARM):
         ss = f"TEST {cur_state[5:]}"
     elif cur_state == S_IDLE:
-        if not disp_always_on:
-            ss = f"AUTO  {_local_ip}" if _local_ip else "AUTO"
-        else:
-            ss = _local_ip or ""
+        ss = _local_ip if _config_received else ""
     else:
         ss = ""
-    cur = (ts, ds, ss)
+
+    # alarm state icon
+    if cur_state in (S_ALARMING, S_TEST_ALARM):
+        ai, ac = chr(0xE7F7), 0x557744   # notifications_active
+    elif cur_state == S_SNOOZED:
+        ai, ac = chr(0xE7F8), 0x446688   # notifications_paused
+    elif _active_alarm()[1] is not None and alarm_fired != (t.tm_year, t.tm_mon, t.tm_mday):
+        ai, ac = chr(0xE855), 0x336688   # alarm — armed for today
+    else:
+        ai, ac = chr(0xE856), 0x1E2D3A   # alarm_off
+
+    cur = (ts, ds, ss, ai, disp_always_on)
     if cur == _prev_disp:
         return False
     if ts != _prev_disp[0]: _lbl_time.text  = ts
     if ds != _prev_disp[1]: _lbl_date.text  = ds
     if ss != _prev_disp[2]: _lbl_state.text = ss
+    if ai != _prev_disp[3]:
+        _lbl_alarm_icon.text  = ai
+        _lbl_alarm_icon.color = ac
+    if disp_always_on != _prev_disp[4]:
+        _slash_group.hidden = not disp_always_on
     _prev_disp = cur
     return True
 
@@ -374,10 +489,12 @@ alarm_fired   = None   # (year, mon, day) — prevents re-firing same alarm twic
 _last_vol     = -1.0
 disp_always_on  = True  # default: display always on; long press toggles
 _disp_wake_lock = 0.0   # monotonic time before which wake commands are ignored
+_cur_alarm      = {}    # alarm dict currently executing (set on state entry)
+_last_sync_day  = time.localtime().tm_mday  # init to today; CONFIG_END handles boot push
 
 def enter_state(new_state):
     global state, state_enter_t, snooze_count, snooze_start
-    global display_on, display_on_t, alarm_fired, _eph, _last_vol
+    global display_on, display_on_t, alarm_fired, _eph, _last_vol, _cur_alarm
     state         = new_state
     state_enter_t = time.monotonic()
     _eph          = 0.0
@@ -391,10 +508,32 @@ def enter_state(new_state):
         display_on_t = time.monotonic()
         snooze_count = 0
 
-    elif new_state in (S_WAKE_RAMP, S_TEST_WAKE):
+    elif new_state == S_WAKE_RAMP:
+        _, _cur_alarm = _active_alarm()
+        _cur_alarm = _cur_alarm or {}
+        push_active_alarm_audio(_cur_alarm)
         send("PLAY WAKE")
 
-    elif new_state in (S_ALARMING, S_TEST_ALARM):
+    elif new_state == S_TEST_WAKE:
+        _, _cur_alarm = _active_alarm()
+        _cur_alarm = _cur_alarm or cfg.get("alarms", {}).get("weekday", {})
+        push_active_alarm_audio(_cur_alarm)
+        send("PLAY WAKE")
+
+    elif new_state == S_ALARMING:
+        if state not in (S_WAKE_RAMP, S_TEST_WAKE):
+            # overdue boot or wake-disabled alarm — capture alarm now
+            _, _cur_alarm = _active_alarm()
+            _cur_alarm = _cur_alarm or {}
+            push_active_alarm_audio(_cur_alarm)
+        send("PLAY ALARM")
+        display_on = True
+
+    elif new_state == S_TEST_ALARM:
+        if not _cur_alarm:
+            _, _cur_alarm = _active_alarm()
+            _cur_alarm = _cur_alarm or cfg.get("alarms", {}).get("weekday", {})
+        push_active_alarm_audio(_cur_alarm)
         send("PLAY ALARM")
         display_on = True
 
@@ -410,38 +549,46 @@ def enter_state(new_state):
         display_on = True
         t = time.localtime()
         alarm_fired = (t.tm_year, t.tm_mon, t.tm_mday)
+        # Auto-disable one-off after it fires
+        oo = cfg.get("alarms", {}).get("oneoff", {})
+        if oo.get("enabled"):
+            try:
+                yy, mm, dd = (int(x) for x in oo["date"].split("-"))
+                if (yy, mm, dd) == (t.tm_year, t.tm_mon, t.tm_mday):
+                    oo["enabled"] = False
+                    save_cfg()
+            except (KeyError, ValueError):
+                pass
 
 # ── Alarm scheduling ───────────────────────────────────────────────────────
-def _alarm_day_ok():
-    days = cfg["alarm"].get("days", "daily")
-    wd   = time.localtime().tm_wday
-    return (days == "daily" or
-            (days == "weekdays" and wd < 5) or
-            (days == "weekends" and wd >= 5))
-
 def _now_s():
     t = time.localtime()
     return t.tm_hour * 3600 + t.tm_min * 60 + t.tm_sec
 
 def check_wake_ramp():
-    if not _alarm_day_ok():
+    _, alarm = _active_alarm()
+    if alarm is None:
         return False
     t = time.localtime()
     if alarm_fired == (t.tm_year, t.tm_mon, t.tm_mday):
         return False
-    alarm_s = cfg["alarm"]["hour"] * 3600 + cfg["alarm"]["minute"] * 60
-    ramp_s  = cfg["timing"]["wake_ramp_minutes"] * 60
+    wake = alarm.get("wake", {})
+    if not wake.get("enabled", True):
+        return False
+    alarm_s = alarm["hour"] * 3600 + alarm["minute"] * 60
+    ramp_s  = wake.get("ramp_minutes", 10) * 60
     ns      = _now_s()
     return (alarm_s - ramp_s) <= ns < alarm_s
 
-def check_alarm_overdue():
-    """Boot during an active alarm window → go straight to ALARMING."""
-    if not _alarm_day_ok():
+def check_alarm_time():
+    """At or past alarm time (within 30 min) — handles overdue boot and wake-disabled alarms."""
+    _, alarm = _active_alarm()
+    if alarm is None:
         return False
     t = time.localtime()
     if alarm_fired == (t.tm_year, t.tm_mon, t.tm_mday):
         return False
-    alarm_s = cfg["alarm"]["hour"] * 3600 + cfg["alarm"]["minute"] * 60
+    alarm_s = alarm["hour"] * 3600 + alarm["minute"] * 60
     ns      = _now_s()
     return alarm_s <= ns < alarm_s + 1800
 
@@ -476,7 +623,9 @@ while True:
             in_cfg = True
         elif cmd == "CONFIG_END":
             in_cfg = False
-            save_cfg()
+            _config_received = True  # noqa — module-level assignment, not local
+            _, _a = _active_alarm()
+            push_active_alarm_audio(_a)
         elif in_cfg:
             apply_cfg_line(cmd)
         elif cmd == "GET_STATE":
@@ -498,7 +647,7 @@ while True:
                     display_on   = True
                     display_on_t = now
             elif cmd == "SNOOZE" and state == S_ALARMING:
-                if snooze_count < cfg["timing"]["max_snoozes"]:
+                if snooze_count < _cur_alarm.get("alarm", {}).get("max_snoozes", 3):
                     enter_state(S_SNOOZED)
             elif cmd == "DISMISS" and state not in (S_IDLE, S_DISMISSED):
                 enter_state(S_DISMISSED)
@@ -511,23 +660,26 @@ while True:
     if state == S_IDLE:
         if check_wake_ramp():
             enter_state(S_WAKE_RAMP)
-        elif check_alarm_overdue():
+        elif check_alarm_time():
             enter_state(S_ALARMING)
 
     # ── State updates ────────────────────────────────────────────────────────
     if state in (S_WAKE_RAMP, S_TEST_WAKE):
         speed    = TEST_SPEED if state == S_TEST_WAKE else 1.0
         elapsed  = (now - state_enter_t) * speed
-        ramp_dur = cfg["timing"]["wake_ramp_minutes"] * 60
+        wake_cfg = _cur_alarm.get("wake", {})
+        ramp_dur = wake_cfg.get("ramp_minutes", 10) * 60
         ramp_t   = min(1.0, elapsed / ramp_dur)
 
+        wl = wake_cfg.get("lighting", {})
         neo_wake_ramp(ramp_t,
-                      cfg["neopixels"]["wake"]["direction"],
-                      cfg["neopixels"]["wake"]["max_brightness"])
+                      wl.get("direction", "sunrise_out"),
+                      wl.get("max_brightness", 0.8))
         pixels.show()
 
-        vol_end = cfg["timing"]["volume_ramp_end"]
-        wmax    = cfg["audio"]["wake_max_volume"]
+        wa      = wake_cfg.get("audio", {})
+        vol_end = wa.get("volume_ramp_end", 0.7)
+        wmax    = wa.get("max_volume", 0.6)
         vol     = round(min(wmax, ramp_t / vol_end * wmax) if ramp_t < vol_end else wmax, 3)
         if abs(vol - _last_vol) >= 0.005:
             send(f"VOL {vol:.3f}")
@@ -541,11 +693,13 @@ while True:
         pixels.show()
 
     elif state == S_SNOOZED:
+        wake_cfg = _cur_alarm.get("wake", {})
+        wl = wake_cfg.get("lighting", {})
         neo_wake_ramp(1.0,
-                      cfg["neopixels"]["wake"]["direction"],
-                      cfg["neopixels"]["wake"]["max_brightness"])
+                      wl.get("direction", "sunrise_out"),
+                      wl.get("max_brightness", 0.8))
         pixels.show()
-        if now - snooze_start >= cfg["timing"]["snooze_minutes"] * 60:
+        if now - snooze_start >= _cur_alarm.get("alarm", {}).get("snooze_minutes", 9) * 60:
             enter_state(S_ALARMING)
 
     elif state == S_DISMISSED:
@@ -554,7 +708,7 @@ while True:
 
     # ── Display timeout ──────────────────────────────────────────────────────
     if not disp_always_on and state in (S_IDLE, S_WAKE_RAMP, S_TEST_WAKE) and display_on:
-        if now - display_on_t >= cfg["timing"]["display_timeout_s"]:
+        if now - display_on_t >= cfg.get("global", {}).get("display_timeout_s", 10):
             display_on = False
 
     # ── Display render (gated on FRAME_PERIOD + dirty flag) ──────────────────
@@ -582,5 +736,12 @@ while True:
             _last_ntp = now
         except Exception:
             pass
+
+    # ── Daily audio sync to S2 Mini (on day change) ──────────────────────────
+    _td = time.localtime().tm_mday
+    if _td != _last_sync_day:
+        _, _next = _active_alarm()
+        push_active_alarm_audio(_next)
+        _last_sync_day = _td
 
     time.sleep(0.005)

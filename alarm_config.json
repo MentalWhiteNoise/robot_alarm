@@ -1,32 +1,116 @@
 {
-  "alarm": {
-    "hour": 7,
-    "minute": 0,
-    "days": "weekdays"
-  },
-  "timing": {
-    "wake_ramp_minutes": 10,
-    "snooze_minutes": 9,
-    "max_snoozes": 3,
-    "display_timeout_s": 30,
-    "volume_ramp_end": 0.7
-  },
-  "audio": {
-    "wake_song": "/sd/orchestral/morning_mood_short.wav",
-    "alarm_song": "/sd/songs/eye_of_the_tiger.wav",
-    "wake_max_volume": 0.6,
-    "alarm_volume": 0.9
-  },
-  "neopixels": {
-    "wake": {
-      "direction": "sunrise_out",
-      "max_brightness": 0.8
+  "alarms": {
+    "weekday": {
+      "enabled": true,
+      "hour": 7,
+      "minute": 0,
+      "wake": {
+        "enabled": true,
+        "ramp_minutes": 10,
+        "audio": {
+          "enabled": true,
+          "song": "/sd/orchestral/morning_mood_short.wav",
+          "max_volume": 0.6,
+          "volume_ramp_end": 0.7
+        },
+        "lighting": {
+          "enabled": true,
+          "direction": "sunrise_out",
+          "max_brightness": 0.8
+        }
+      },
+      "alarm": {
+        "snooze_minutes": 9,
+        "max_snoozes": 3,
+        "audio": {
+          "enabled": true,
+          "song": "/sd/songs/eye_of_the_tiger.wav",
+          "volume": 0.9
+        },
+        "lighting": {
+          "enabled": true,
+          "effect": "PULSE",
+          "brightness": 0.8,
+          "color": "warm_white",
+          "speed": "medium"
+        }
+      }
     },
-    "alarm": {
-      "effect": "PULSE",
-      "brightness": 0.8,
-      "color": "warm_white",
-      "speed": "medium"
+    "weekend": {
+      "enabled": true,
+      "hour": 9,
+      "minute": 0,
+      "wake": {
+        "enabled": true,
+        "ramp_minutes": 20,
+        "audio": {
+          "enabled": true,
+          "song": "/sd/orchestral/morning_mood_short.wav",
+          "max_volume": 0.6,
+          "volume_ramp_end": 0.7
+        },
+        "lighting": {
+          "enabled": true,
+          "direction": "sunrise_out",
+          "max_brightness": 0.8
+        }
+      },
+      "alarm": {
+        "snooze_minutes": 15,
+        "max_snoozes": 5,
+        "audio": {
+          "enabled": true,
+          "song": "/sd/songs/eye_of_the_tiger.wav",
+          "volume": 0.7
+        },
+        "lighting": {
+          "enabled": true,
+          "effect": "PULSE",
+          "brightness": 0.6,
+          "color": "warm_white",
+          "speed": "slow"
+        }
+      }
+    },
+    "oneoff": {
+      "enabled": false,
+      "date": "2026-05-03",
+      "hour": 8,
+      "minute": 30,
+      "wake": {
+        "enabled": true,
+        "ramp_minutes": 10,
+        "audio": {
+          "enabled": true,
+          "song": "/sd/orchestral/morning_mood_short.wav",
+          "max_volume": 0.6,
+          "volume_ramp_end": 0.7
+        },
+        "lighting": {
+          "enabled": true,
+          "direction": "sunrise_out",
+          "max_brightness": 0.8
+        }
+      },
+      "alarm": {
+        "snooze_minutes": 9,
+        "max_snoozes": 3,
+        "audio": {
+          "enabled": true,
+          "song": "/sd/songs/eye_of_the_tiger.wav",
+          "volume": 0.9
+        },
+        "lighting": {
+          "enabled": true,
+          "effect": "PULSE",
+          "brightness": 0.8,
+          "color": "warm_white",
+          "speed": "medium"
+        }
+      }
     }
+  },
+  "global": {
+    "display_timeout_s": 10
   }
 }
